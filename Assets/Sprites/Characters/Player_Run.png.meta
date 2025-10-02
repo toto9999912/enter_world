@@ -131,10 +131,10 @@ TextureImporter:
       name: Player_Run_0
       rect:
         serializedVersion: 2
-        x: 61
-        y: 54
-        width: 78
-        height: 86
+        x: 0
+        y: 0
+        width: 192
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -153,10 +153,10 @@ TextureImporter:
       name: Player_Run_1
       rect:
         serializedVersion: 2
-        x: 256
-        y: 54
-        width: 69
-        height: 93
+        x: 192
+        y: 0
+        width: 192
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -175,10 +175,10 @@ TextureImporter:
       name: Player_Run_2
       rect:
         serializedVersion: 2
-        x: 448
-        y: 54
-        width: 69
-        height: 93
+        x: 384
+        y: 0
+        width: 192
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -197,10 +197,10 @@ TextureImporter:
       name: Player_Run_3
       rect:
         serializedVersion: 2
-        x: 637
-        y: 54
-        width: 78
-        height: 87
+        x: 576
+        y: 0
+        width: 192
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -219,10 +219,10 @@ TextureImporter:
       name: Player_Run_4
       rect:
         serializedVersion: 2
-        x: 820
-        y: 54
-        width: 95
-        height: 93
+        x: 768
+        y: 0
+        width: 192
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -241,10 +241,10 @@ TextureImporter:
       name: Player_Run_5
       rect:
         serializedVersion: 2
-        x: 1013
-        y: 54
-        width: 90
-        height: 91
+        x: 960
+        y: 0
+        width: 192
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -263,7 +263,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 99147a32c8b5b9343bde74f046206bd7
     internalID: 0
     vertices: []
     indices: 
