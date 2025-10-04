@@ -22,17 +22,25 @@ namespace Player
 
         [Header("移動")]
         public float moveSpeed = 5f;
-        public float sprintMultiplier = 1.5f;
+
+        [Header("動畫")]
+        public Animator animator;
 
         // Input System
         private PlayerInputActions inputActions;
         private Vector2 moveInput;
-        private bool isSprinting;
+        private float currentSpeed;
 
         private void Awake()
         {
             // 初始化 Input System
             inputActions = new PlayerInputActions();
+
+            // 自動獲取 Animator (如果沒有手動設定)
+            if (animator == null)
+            {
+                animator = GetComponent<Animator>();
+            }
         }
 
         private void OnEnable()
@@ -43,8 +51,6 @@ namespace Player
             inputActions.Player.Move.performed += OnMove;
             inputActions.Player.Move.canceled += OnMove;
             inputActions.Player.Attack.performed += OnAttack;
-            inputActions.Player.Sprint.performed += OnSprint;
-            inputActions.Player.Sprint.canceled += OnSprint;
         }
 
         private void OnDisable()
@@ -53,8 +59,6 @@ namespace Player
             inputActions.Player.Move.performed -= OnMove;
             inputActions.Player.Move.canceled -= OnMove;
             inputActions.Player.Attack.performed -= OnAttack;
-            inputActions.Player.Sprint.performed -= OnSprint;
-            inputActions.Player.Sprint.canceled -= OnSprint;
 
             inputActions.Player.Disable();
         }
@@ -108,23 +112,30 @@ namespace Player
             AttackNearestEnemy();
         }
 
-        private void OnSprint(InputAction.CallbackContext context)
-        {
-            isSprinting = context.ReadValueAsButton();
-        }
-
         // ===== 移動處理 =====
 
         private void HandleMovement()
         {
-            // 使用 Input System 的輸入
+            // 計算移動方向 (只使用 WASD 輸入)
             Vector3 movement = new Vector3(moveInput.x, 0, moveInput.y).normalized;
             
-            // 計算移動速度 (考慮衝刺)
-            float currentSpeed = moveSpeed * (isSprinting ? sprintMultiplier : 1f);
-            
             // 應用移動
-            transform.position += movement * currentSpeed * Time.deltaTime;
+            transform.position += movement * moveSpeed * Time.deltaTime;
+
+            // 計算當前速度 (用於動畫)
+            currentSpeed = movement.magnitude;
+
+            // 更新 Animator 參數
+            if (animator != null)
+            {
+                animator.SetFloat("Speed", currentSpeed);
+            }
+
+            // 調試輸出
+            if (currentSpeed > 0.1f)
+            {
+                Debug.Log($"[PlayerController] Moving - Speed: {currentSpeed:F2}");
+            }
         }
 
         private void HandleCombat()
