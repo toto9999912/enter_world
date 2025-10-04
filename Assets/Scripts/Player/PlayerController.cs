@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Stats;
 using Combat;
 using Element;
@@ -21,6 +22,42 @@ namespace Player
 
         [Header("移動")]
         public float moveSpeed = 5f;
+        public float sprintMultiplier = 1.5f;
+
+        // Input System
+        private PlayerInputActions inputActions;
+        private Vector2 moveInput;
+        private bool isSprinting;
+
+        private void Awake()
+        {
+            // 初始化 Input System
+            inputActions = new PlayerInputActions();
+        }
+
+        private void OnEnable()
+        {
+            inputActions.Player.Enable();
+
+            // 訂閱輸入事件
+            inputActions.Player.Move.performed += OnMove;
+            inputActions.Player.Move.canceled += OnMove;
+            inputActions.Player.Attack.performed += OnAttack;
+            inputActions.Player.Sprint.performed += OnSprint;
+            inputActions.Player.Sprint.canceled += OnSprint;
+        }
+
+        private void OnDisable()
+        {
+            // 取消訂閱輸入事件
+            inputActions.Player.Move.performed -= OnMove;
+            inputActions.Player.Move.canceled -= OnMove;
+            inputActions.Player.Attack.performed -= OnAttack;
+            inputActions.Player.Sprint.performed -= OnSprint;
+            inputActions.Player.Sprint.canceled -= OnSprint;
+
+            inputActions.Player.Disable();
+        }
 
         private void Start()
         {
@@ -57,28 +94,43 @@ namespace Player
         private void Update()
         {
             HandleMovement();
-            HandleCombat();
         }
+
+        // ===== Input System 回調 =====
+
+        private void OnMove(InputAction.CallbackContext context)
+        {
+            moveInput = context.ReadValue<Vector2>();
+        }
+
+        private void OnAttack(InputAction.CallbackContext context)
+        {
+            AttackNearestEnemy();
+        }
+
+        private void OnSprint(InputAction.CallbackContext context)
+        {
+            isSprinting = context.ReadValueAsButton();
+        }
+
+        // ===== 移動處理 =====
 
         private void HandleMovement()
         {
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
-
-            Vector3 movement = new Vector3(horizontal, 0, vertical).normalized;
-            transform.position += movement * moveSpeed * Time.deltaTime;
+            // 使用 Input System 的輸入
+            Vector3 movement = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+            
+            // 計算移動速度 (考慮衝刺)
+            float currentSpeed = moveSpeed * (isSprinting ? sprintMultiplier : 1f);
+            
+            // 應用移動
+            transform.position += movement * currentSpeed * Time.deltaTime;
         }
 
         private void HandleCombat()
         {
-            // 按下空白鍵攻擊最近的敵人
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                AttackNearestEnemy();
-            }
-
-            // 按下 H 鍵自我治療
-            if (Input.GetKeyDown(KeyCode.H))
+            // 按下 H 鍵自我治療 (保留鍵盤快捷鍵)
+            if (Keyboard.current != null && Keyboard.current.hKey.wasPressedThisFrame)
             {
                 healthSystem.Heal(100f);
                 Debug.Log($"[Player] Healed! HP: {healthSystem.CurrentHP}/{healthSystem.MaxHP}");
