@@ -26,6 +26,9 @@ namespace Player
         [Header("動畫")]
         public Animator animator;
 
+        [Header("顯示")]
+        public SpriteRenderer spriteRenderer;
+
         // Input System
         private PlayerInputActions inputActions;
         private Vector2 moveInput;
@@ -41,6 +44,12 @@ namespace Player
             {
                 animator = GetComponent<Animator>();
             }
+
+            // 自動獲取 SpriteRenderer (如果沒有手動設定)
+            if (spriteRenderer == null)
+            {
+                spriteRenderer = GetComponent<SpriteRenderer>();
+            }
         }
 
         private void OnEnable()
@@ -50,7 +59,7 @@ namespace Player
             // 訂閱輸入事件
             inputActions.Player.Move.performed += OnMove;
             inputActions.Player.Move.canceled += OnMove;
-            inputActions.Player.Attack.performed += OnAttack;
+            // inputActions.Player.Attack.performed += OnAttack; // 暫時註解,先專注移動
         }
 
         private void OnDisable()
@@ -58,7 +67,7 @@ namespace Player
             // 取消訂閱輸入事件
             inputActions.Player.Move.performed -= OnMove;
             inputActions.Player.Move.canceled -= OnMove;
-            inputActions.Player.Attack.performed -= OnAttack;
+            // inputActions.Player.Attack.performed -= OnAttack; // 暫時註解
 
             inputActions.Player.Disable();
         }
@@ -89,15 +98,51 @@ namespace Player
             combatSystem = new CombatSystem(stats, healthSystem);
             combatSystem.Element = mainElement;
 
-            // 訂閱事件
-            healthSystem.OnDeath += OnPlayerDeath;
-
-            Debug.Log("[PlayerController] Player initialized");
+            Debug.Log("[PlayerController] Player initialized with combat system");
         }
 
         private void Update()
         {
             HandleMovement();
+            HandleTestKeys(); // HUD 測試按鍵
+        }
+
+        // ===== HUD 測試按鍵 =====
+        
+        private void HandleTestKeys()
+        {
+            if (healthSystem == null) return;
+
+            // H 鍵: 受到 100 傷害
+            if (Keyboard.current != null && Keyboard.current.hKey.wasPressedThisFrame)
+            {
+                healthSystem.TakeDamage(100f);
+                Debug.Log($"[Player] 受到傷害! HP: {healthSystem.CurrentHP}/{healthSystem.MaxHP}");
+            }
+
+            // J 鍵: 治療 100 HP
+            if (Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame)
+            {
+                healthSystem.Heal(100f);
+                Debug.Log($"[Player] 治療! HP: {healthSystem.CurrentHP}/{healthSystem.MaxHP}");
+            }
+
+            // K 鍵: 消耗 50 MP
+            if (Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame)
+            {
+                bool success = healthSystem.ConsumeMana(50f);
+                if (success)
+                    Debug.Log($"[Player] 使用魔力! MP: {healthSystem.CurrentMP}/{healthSystem.MaxMP}");
+                else
+                    Debug.Log($"[Player] 魔力不足! MP: {healthSystem.CurrentMP}/{healthSystem.MaxMP}");
+            }
+
+            // L 鍵: 恢復 50 MP
+            if (Keyboard.current != null && Keyboard.current.lKey.wasPressedThisFrame)
+            {
+                healthSystem.RestoreMana(50f);
+                Debug.Log($"[Player] 恢復魔力! MP: {healthSystem.CurrentMP}/{healthSystem.MaxMP}");
+            }
         }
 
         // ===== Input System 回調 =====
@@ -107,23 +152,33 @@ namespace Player
             moveInput = context.ReadValue<Vector2>();
         }
 
+        // 暫時註解攻擊功能
+        /*
         private void OnAttack(InputAction.CallbackContext context)
         {
             AttackNearestEnemy();
         }
+        */
 
         // ===== 移動處理 =====
 
         private void HandleMovement()
         {
-            // 計算移動方向 (只使用 WASD 輸入)
-            Vector3 movement = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+            // 計算移動方向 (2D Top-Down: X=左右, Y=上下)
+            Vector3 movement = new Vector3(moveInput.x, moveInput.y, 0).normalized;
             
             // 應用移動
             transform.position += movement * moveSpeed * Time.deltaTime;
 
             // 計算當前速度 (用於動畫)
             currentSpeed = movement.magnitude;
+
+            // 更新角色朝向 (根據水平移動方向)
+            if (spriteRenderer != null && Mathf.Abs(moveInput.x) > 0.1f)
+            {
+                // 向右移動時不翻轉,向左移動時翻轉
+                spriteRenderer.flipX = moveInput.x < 0;
+            }
 
             // 更新 Animator 參數
             if (animator != null)
@@ -134,10 +189,13 @@ namespace Player
             // 調試輸出
             if (currentSpeed > 0.1f)
             {
-                Debug.Log($"[PlayerController] Moving - Speed: {currentSpeed:F2}");
+                Debug.Log($"[PlayerController] Moving - Speed: {currentSpeed:F2}, Direction: ({moveInput.x:F2}, {moveInput.y:F2})");
             }
         }
 
+        // ===== 暫時註解戰鬥相關功能,先專注移動測試 =====
+        
+        /*
         private void HandleCombat()
         {
             // 按下 H 鍵自我治療 (保留鍵盤快捷鍵)
@@ -197,5 +255,6 @@ namespace Player
                 healthSystem.OnDeath -= OnPlayerDeath;
             }
         }
+        */
     }
 }
