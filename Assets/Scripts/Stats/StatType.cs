@@ -17,14 +17,17 @@ namespace Stats
         /// <summary>攻擊力 (Attack Power)</summary>
         ATK,
 
-        /// <summary>元素強度 (Intelligence - 影響技能傷害)</summary>
-        INT,
+        /// <summary>魔法力 (Magic Power - 影響技能傷害)</summary>
+        Magic,
 
         /// <summary>防禦力 (Defense)</summary>
         DEF,
 
         /// <summary>移動速度 (Speed)</summary>
         SPD,
+
+        /// <summary>精神力 (Spiritual Power) - 影響眷屬持續作戰與重生速度</summary>
+        SP,
 
         // ===== 隱藏稀有屬性 =====
         /// <summary>爆擊率 (Critical Rate) - 百分比</summary>
@@ -43,7 +46,10 @@ namespace Stats
         Penetration,
 
         /// <summary>技能急速 (Skill Haste) - 減少冷卻時間百分比</summary>
-        SkillHaste
+        SkillHaste,
+
+        /// <summary>命中率 (Hit Rate) - 百分比</summary>
+        HitRate
     }
 
     /// <summary>

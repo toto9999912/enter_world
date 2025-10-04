@@ -15,9 +15,10 @@ namespace Stats
         [SerializeField] private float baseHP = 100f;
         [SerializeField] private float baseMP = 50f;
         [SerializeField] private float baseATK = 10f;
-        [SerializeField] private float baseINT = 10f;
+        [SerializeField] private float baseMagic = 10f;
         [SerializeField] private float baseDEF = 8f;
         [SerializeField] private float baseSPD = 5f;
+        [SerializeField] private float baseSP = 100f;
 
         // ===== 隱藏稀有屬性基礎值 =====
         [Header("隱藏稀有屬性")]
@@ -27,6 +28,7 @@ namespace Stats
         [SerializeField, Range(0f, 100f)] private float baseToughness = 0f;
         [SerializeField, Range(0f, 100f)] private float basePenetration = 0f;
         [SerializeField, Range(0f, 40f)] private float baseSkillHaste = 0f;
+        [SerializeField, Range(0f, 100f)] private float baseHitRate = 100f;
 
         // ===== 修飾器系統 =====
         // 屬性修飾器清單 (來自裝備、Buff等)
@@ -82,15 +84,17 @@ namespace Stats
                 case StatType.HP: return baseHP;
                 case StatType.MP: return baseMP;
                 case StatType.ATK: return baseATK;
-                case StatType.INT: return baseINT;
+                case StatType.Magic: return baseMagic;
                 case StatType.DEF: return baseDEF;
                 case StatType.SPD: return baseSPD;
+                case StatType.SP: return baseSP;
                 case StatType.CritRate: return baseCritRate;
                 case StatType.CritDamage: return baseCritDamage;
                 case StatType.DodgeRate: return baseDodgeRate;
                 case StatType.Toughness: return baseToughness;
                 case StatType.Penetration: return basePenetration;
                 case StatType.SkillHaste: return baseSkillHaste;
+                case StatType.HitRate: return baseHitRate;
                 default: return 0f;
             }
         }
@@ -105,15 +109,17 @@ namespace Stats
                 case StatType.HP: baseHP = value; break;
                 case StatType.MP: baseMP = value; break;
                 case StatType.ATK: baseATK = value; break;
-                case StatType.INT: baseINT = value; break;
+                case StatType.Magic: baseMagic = value; break;
                 case StatType.DEF: baseDEF = value; break;
                 case StatType.SPD: baseSPD = value; break;
+                case StatType.SP: baseSP = value; break;
                 case StatType.CritRate: baseCritRate = value; break;
                 case StatType.CritDamage: baseCritDamage = value; break;
                 case StatType.DodgeRate: baseDodgeRate = value; break;
                 case StatType.Toughness: baseToughness = value; break;
                 case StatType.Penetration: basePenetration = value; break;
                 case StatType.SkillHaste: baseSkillHaste = value; break;
+                case StatType.HitRate: baseHitRate = value; break;
             }
             isDirty = true;
         }
@@ -341,6 +347,10 @@ namespace Stats
                 case StatType.SkillHaste:
                     return Mathf.Clamp(value, 0f, 40f);
 
+                // 命中率上限 100%
+                case StatType.HitRate:
+                    return Mathf.Clamp(value, 0f, 100f);
+
                 // 韌性和穿透上限 100
                 case StatType.Toughness:   // 韌性 (抗爆擊)
                 case StatType.Penetration: // 穿透 (無視防禦)
@@ -368,6 +378,7 @@ namespace Stats
                 case StatType.Toughness: return 100f;
                 case StatType.Penetration: return 100f;
                 case StatType.SkillHaste: return 40f;
+                case StatType.HitRate: return 100f;
                 default: return float.MaxValue; // 無上限
             }
         }
@@ -384,9 +395,10 @@ namespace Stats
                 { StatType.HP, GetFinalValue(StatType.HP) },
                 { StatType.MP, GetFinalValue(StatType.MP) },
                 { StatType.ATK, GetFinalValue(StatType.ATK) },
-                { StatType.INT, GetFinalValue(StatType.INT) },
+                { StatType.Magic, GetFinalValue(StatType.Magic) },
                 { StatType.DEF, GetFinalValue(StatType.DEF) },
-                { StatType.SPD, GetFinalValue(StatType.SPD) }
+                { StatType.SPD, GetFinalValue(StatType.SPD) },
+                { StatType.SP, GetFinalValue(StatType.SP) }
             };
         }
 
@@ -404,7 +416,8 @@ namespace Stats
                 { StatType.DodgeRate, GetFinalValue(StatType.DodgeRate) },
                 { StatType.Toughness, GetFinalValue(StatType.Toughness) },
                 { StatType.Penetration, GetFinalValue(StatType.Penetration) },
-                { StatType.SkillHaste, GetFinalValue(StatType.SkillHaste) }
+                { StatType.SkillHaste, GetFinalValue(StatType.SkillHaste) },
+                { StatType.HitRate, GetFinalValue(StatType.HitRate) }
             };
         }
 

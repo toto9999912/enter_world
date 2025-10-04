@@ -90,7 +90,7 @@ namespace Stats
                 case StatType.HP: return "生命值";
                 case StatType.MP: return "魔力值";
                 case StatType.ATK: return "攻擊力";
-                case StatType.INT: return "元素強度";
+                case StatType.Magic: return "魔法力";
                 case StatType.DEF: return "防禦力";
                 case StatType.SPD: return "移動速度";
                 case StatType.CritRate: return "爆擊率";
