@@ -11,7 +11,7 @@ namespace AI
     /// </summary>
     public class EnemyController : MonoBehaviour
     {
-        [Header("引用")]
+        [Header("引用 (自動初始化,無需手動設定)")]
         public CharacterStats stats;
         public HealthSystem healthSystem;
         public CombatSystem combatSystem;
@@ -20,8 +20,17 @@ namespace AI
         public float detectionRange = 10f;
         public float attackRange = 2f;
         public float moveSpeed = 3f;
+        public float attackCooldown = 2f; // 攻擊冷卻時間
 
-        [Header("眷屬")]
+        [Header("敵人屬性")]
+        public Element.ElementType mainElement = Element.ElementType.Fire;
+        public float maxHP = 500f;
+        public float maxMP = 200f;
+        public float attackPower = 30f;
+        public float magicPower = 40f;
+        public float defense = 20f;
+
+        [Header("眷屬 (可選)")]
         public CompanionManager companionManager;
 
         // 狀態機
@@ -31,17 +40,52 @@ namespace AI
         private Transform player;
         private Vector3 patrolTarget;
 
+        // 攻擊計時器
+        private float lastAttackTime;
+
         private void Start()
         {
-            // 初始化狀態機
-            stateMachine = new StateMachine<EnemyController>(this);
-            stateMachine.ChangeState(new IdleState());
+            InitializeEnemy();
+            InitializeStateMachine();
+        }
+
+        /// <summary>
+        /// 初始化敵人屬性
+        /// </summary>
+        private void InitializeEnemy()
+        {
+            // 初始化屬性
+            stats = new CharacterStats();
+            stats.SetBaseValue(Stats.StatType.HP, maxHP);
+            stats.SetBaseValue(Stats.StatType.MP, maxMP);
+            stats.SetBaseValue(Stats.StatType.ATK, attackPower);
+            stats.SetBaseValue(Stats.StatType.Magic, magicPower);
+            stats.SetBaseValue(Stats.StatType.DEF, defense);
+            stats.SetBaseValue(Stats.StatType.SPD, 80f);
+            stats.SetBaseValue(Stats.StatType.CritRate, 15f);
+            stats.SetBaseValue(Stats.StatType.CritDamage, 130f);
+            stats.SetBaseValue(Stats.StatType.HitRate, 85f);
+
+            // 初始化生命系統
+            healthSystem = new HealthSystem(stats, true);
+
+            // 初始化戰鬥系統
+            combatSystem = new CombatSystem(stats, healthSystem);
+            combatSystem.Element = mainElement;
 
             // 訂閱死亡事件
-            if (healthSystem != null)
-            {
-                healthSystem.OnDeath += HandleDeath;
-            }
+            healthSystem.OnDeath += HandleDeath;
+
+            Debug.Log($"[EnemyController] {gameObject.name} 初始化完成 - HP: {maxHP}, ATK: {attackPower}");
+        }
+
+        /// <summary>
+        /// 初始化狀態機
+        /// </summary>
+        private void InitializeStateMachine()
+        {
+            stateMachine = new StateMachine<EnemyController>(this);
+            stateMachine.ChangeState(new IdleState());
         }
 
         private void Update()
@@ -118,14 +162,32 @@ namespace AI
         {
             if (player == null) return;
 
-            // 取得目標組件
-            var targetHealth = player.GetComponent<HealthSystem>();
-            var targetStats = player.GetComponent<CharacterStats>();
-            var targetCombat = player.GetComponent<CombatSystem>();
+            // 檢查攻擊冷卻
+            if (Time.time - lastAttackTime < attackCooldown)
+                return;
 
-            if (targetHealth != null && targetStats != null && combatSystem != null)
+            // 取得目標 PlayerController
+            var playerController = player.GetComponent<Player.PlayerController>();
+            if (playerController == null)
             {
-                combatSystem.Attack(targetHealth, targetStats, targetCombat);
+                Debug.LogWarning("[EnemyController] 找不到 PlayerController!");
+                return;
+            }
+
+            // 執行攻擊
+            if (combatSystem != null && playerController.healthSystem != null)
+            {
+                combatSystem.Attack(
+                    playerController.healthSystem,
+                    playerController.stats,
+                    playerController.combatSystem,
+                    damageMultiplier: 1.0f,
+                    Combat.DamageType.Physical,
+                    "敵人普攻"
+                );
+
+                lastAttackTime = Time.time;
+                Debug.Log($"[{gameObject.name}] 攻擊玩家!");
             }
         }
 
