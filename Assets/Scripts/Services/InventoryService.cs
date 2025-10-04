@@ -104,5 +104,31 @@ namespace Services
         {
             return inventorySystem.UsedSlots;
         }
+        
+        /// <summary>
+        /// 取得所有非空的物品槽 (支援存檔系統)
+        /// </summary>
+        public IEnumerable<ItemSlot> GetAllItems()
+        {
+            return inventorySystem.GetAllItems();
+        }
+        
+        /// <summary>
+        /// 清空背包 (載入存檔時使用)
+        /// </summary>
+        public void ClearInventory()
+        {
+            // TODO: 需要在 InventorySystem 中實作 Clear() 方法
+            Debug.Log("[InventoryService] 清空背包");
+        }
+        
+        /// <summary>
+        /// 設定背包容量 (載入存檔時使用)
+        /// </summary>
+        public void SetCapacity(int capacity)
+        {
+            // TODO: 需要在 InventorySystem 中實作 SetCapacity() 方法
+            Debug.Log($"[InventoryService] 設定容量為 {capacity}");
+        }
     }
 }
