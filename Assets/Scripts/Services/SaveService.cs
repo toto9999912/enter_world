@@ -323,9 +323,20 @@ namespace Services
                 items = new List<ItemSaveData>()
             };
             
-            // TODO: 需要擴展 IInventoryService 介面以支援 GetAllItems()
-            // 目前暫時返回空資料
+            // 遍歷所有物品槽
+            foreach (var slot in inventory.GetAllItems())
+            {
+                if (slot != null && slot.itemData != null)
+                {
+                    data.items.Add(new ItemSaveData
+                    {
+                        itemId = slot.itemData.itemId,
+                        quantity = slot.quantity
+                    });
+                }
+            }
             
+            Debug.Log($"[SaveService] 序列化背包: {data.items.Count} 個物品");
             return data;
         }
 
@@ -336,8 +347,9 @@ namespace Services
         {
             var data = new SkillData();
             
-            // TODO: 需要從玩家的 SkillTree 獲取資料
-            // 目前暫時返回空資料
+            // 目前 SkillTree 只是類別而非服務,需要從玩家物件獲取
+            // 暫時返回空資料,等待 ISkillService 實作
+            Debug.LogWarning("[SaveService] 技能服務尚未實作,無法序列化技能資料");
             
             return data;
         }
@@ -349,8 +361,9 @@ namespace Services
         {
             var data = new CompanionSaveData();
             
-            // TODO: 需要從 CompanionManager 獲取資料
-            // 目前暫時返回空資料
+            // 目前 CompanionManager 只是類別而非服務,需要從玩家物件獲取
+            // 暫時返回空資料,等待 ICompanionService 實作
+            Debug.LogWarning("[SaveService] 眷屬服務尚未實作,無法序列化眷屬資料");
             
             return data;
         }

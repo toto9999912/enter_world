@@ -118,7 +118,7 @@ namespace Services
         /// </summary>
         public void ClearInventory()
         {
-            // TODO: 需要在 InventorySystem 中實作 Clear() 方法
+            inventorySystem.Clear();
             Debug.Log("[InventoryService] 清空背包");
         }
         
@@ -127,7 +127,7 @@ namespace Services
         /// </summary>
         public void SetCapacity(int capacity)
         {
-            // TODO: 需要在 InventorySystem 中實作 SetCapacity() 方法
+            inventorySystem.SetCapacity(capacity);
             Debug.Log($"[InventoryService] 設定容量為 {capacity}");
         }
     }

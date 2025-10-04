@@ -277,5 +277,67 @@ namespace Inventory
             // TODO: 實作整理邏輯
             Debug.Log("[Inventory] 背包已整理");
         }
+
+        /// <summary>
+        /// 清空背包 (用於讀檔時重置)
+        /// </summary>
+        public void Clear()
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                slots[i] = new ItemSlot();
+            }
+            Debug.Log("[Inventory] 背包已清空");
+        }
+
+        /// <summary>
+        /// 設定背包容量 (用於讀檔時恢復)
+        /// </summary>
+        public void SetCapacity(int newCapacity)
+        {
+            if (newCapacity < 0 || newCapacity > maxCapacity)
+            {
+                Debug.LogWarning($"[Inventory] 無效的容量: {newCapacity}");
+                return;
+            }
+
+            int oldCapacity = currentCapacity;
+            currentCapacity = newCapacity;
+
+            // 如果容量增加,新增空格子
+            while (slots.Count < currentCapacity)
+            {
+                slots.Add(new ItemSlot());
+            }
+
+            // 如果容量減少,移除多餘的空格子 (保留有物品的格子)
+            if (slots.Count > currentCapacity)
+            {
+                // 先將所有物品往前移動
+                List<ItemSlot> nonEmptySlots = slots.Where(s => !s.IsEmpty).ToList();
+                List<ItemSlot> newSlots = new List<ItemSlot>(currentCapacity);
+
+                // 先填充有物品的格子
+                foreach (var slot in nonEmptySlots)
+                {
+                    if (newSlots.Count < currentCapacity)
+                        newSlots.Add(slot);
+                }
+
+                // 填充剩餘的空格子
+                while (newSlots.Count < currentCapacity)
+                {
+                    newSlots.Add(new ItemSlot());
+                }
+
+                slots = newSlots;
+            }
+
+            if (oldCapacity != currentCapacity)
+            {
+                OnCapacityChanged?.Invoke(currentCapacity);
+                Debug.Log($"[Inventory] 背包容量已設定為: {currentCapacity}");
+            }
+        }
     }
 }
